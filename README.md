@@ -1,6 +1,6 @@
 # project-find-navigation
 
-improve project-find-result navigation by dirty hack.
+Improve project-find-result navigation by dirty hack.
 
 # Development state
 
