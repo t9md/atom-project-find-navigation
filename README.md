@@ -28,7 +28,7 @@ Here is summary table of what project-find-navigation provides.
 
 |  action       | pure project-find  | project-find-navigation  |
 | ------------- |-------------| -----|
-| `mousedown`   | Jump to matched entry and selected | Only select target node of `mousedown` |
+| `mousedown`   | Jump to matched entry and selected | Scroll to match with flashing effect, focus remain result pane |
 | `dblclick`   | N/A | Jump to matched entry with flashing without select |
 | confirm   | Jump to matched entry and select | Jump to matched with flash effect, no select |
 | confirm-and-continue | N/A | Scroll to match with flashing effect, focus remain result pane |
