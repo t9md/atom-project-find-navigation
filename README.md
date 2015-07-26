@@ -1,10 +1,8 @@
 # project-find-navigation
 
+![gif](https://raw.githubusercontent.com/t9md/t9md/55e7fd32500d45751e2d7824f008e42b06763cd1/img/atom-project-find-navigation.gif)
+
 Improve project-find-result navigation by dirty hack.
-
-# Development state
-
-Beta.
 
 # What's this?
 
@@ -12,14 +10,14 @@ Beta.
 I like this feature, but navigation need to be improve.  
 Its' lacking of keyboard navigation.  
 
-This package allow you keyboard navigation on results view of project-find.
+This package allow you keyboard navigation on results view of project-find.  
 
 # Excuse
 
-This package's code is greatly and directly depending on internal `variable`, `function` of [find-and-replace](https://github.com/atom/find-and-replace) provide, project-find.  
+This package's code is greatly and directly depending on internal variables and functions which  [find-and-replace](https://github.com/atom/find-and-replace) provides.
 
-So this package might not work on future version of find-and-replace.
-If code change made on find-and-replace was big, I might give up this navigation hack.
+So this package might not work on future version of find-and-replace.  
+If code change made on find-and-replace in future was big, I might give up this navigation hack package.  
 So essentially this is proof of concept to investigate how project-find's result pane navigation could be improved.
 
 # Features
@@ -28,18 +26,18 @@ Here is summary table of what project-find-navigation provides.
 
 |  action       | pure project-find  | project-find-navigation  |
 | ------------- |-------------| -----|
-| `mousedown`   | Jump to matched entry and selected | Scroll to match with flashing effect, focus remain result pane |
-| `dblclick`   | N/A | Jump to matched entry with flashing without select |
-| confirm   | Jump to matched entry and select | Jump to matched with flash effect, no select |
-| confirm-and-continue | N/A | Scroll to match with flashing effect, focus remain result pane |
-| select-next-and-confirm | N/A | Select next item and then confirm-and-continue(auto preview like navigation) |
-| select-prev-and-confirm | N/A | Select previous item and then confirm-and-continue(auto preview like navigation) |
+| `mousedown`   | Jump to found entry and select | Scroll to found entry with flashing effect, focus remains on result pane |
+| `dblclick`   | N/A | Jump to found entry with flashing, no select |
+| confirm   | Jump to found entry and select | Jump to found entry with flashing effect, no select |
+| confirm-and-continue | N/A | Scroll to found entry with flashing effect, focus remains on result pane |
+| select-next-and-confirm | N/A | Select next item and then confirm-and-continue(auto preview) |
+| select-prev-and-confirm | N/A | Select previous item and then confirm-and-continue(auto preview) |
 | activate-results-pane | N/A | Change focus to results-pane if exists |
 
 Other features.
 
 - Highlight(decorate) found entries on editor, auto-cleared when result-pane destroyed.
-- When confirmed, open found entry on **adjacent** pane. find-and-replace have `Open Project Find Results In Right Pane` setting, it always open target on right pane.
+- Open found entry in **adjacent** pane. This mean, if result-pane was on left pane open found entry on right pane when confirmed.
 
 # Keymap
 
@@ -63,5 +61,4 @@ My setting, navigate results-pane with Vim like keymap.
 ```
 
 # TODO
-- Refactoring
-- Provide command to clear decoration on editor?
+- [x] Refactoring
