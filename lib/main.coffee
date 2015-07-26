@@ -94,9 +94,8 @@ module.exports =
   confirm: ({keepPane}={}) ->
     keepPane ?= false
     view = @resultsView.find('.selected').view()
-    return unless view
+    return unless range = view?.match?.range
 
-    range = view.match.range
     range = new Range(range...) if _.isArray(range)
 
     @open view.filePath, (editor, {srcItem}) =>
