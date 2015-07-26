@@ -63,5 +63,5 @@ My setting, navigate results-pane with Vim like keymap.
 ```
 
 # TODO
-- Rfactoring
+- Refactoring
 - Provide command to clear decoration on editor?

@@ -1,7 +1,7 @@
 {CompositeDisposable, Range, TextEditor} = require 'atom'
 
 util = require 'util'
-_ = require 'underscore-plus'
+_    = require 'underscore-plus'
 {$} = require 'atom-space-pen-views'
 
 Config =
@@ -23,24 +23,19 @@ module.exports =
     @subscriptions.add atom.commands.add 'atom-workspace',
       'project-find-navigation:activate-results-pane': => @activateResultsPane()
 
-    onWillDestroyPaneItem = ({item}) =>
+    @subscriptions.add atom.workspace.onWillDestroyPaneItem ({item}) =>
       if @resultPaneView is item
         @clearAllDecorations()
         @reset()
 
-    hidePanel = ->
-      if atom.config.get('project-find-navigation.hideProjectFindPanel')
-        panel = _.detect atom.workspace.getBottomPanels(), (panel) ->
-          panel.getItem().constructor.name is 'ProjectFindView'
-        panel?.hide()
-
-    onDidOpen = ({uri, item}) =>
-      if (uri is @URI) and (not @resultPaneView)
+    @subscriptions.add atom.workspace.onDidOpen ({uri, item}) =>
+      if (not @resultPaneView?) and (uri is @URI)
         @improve item
-        hidePanel()
 
-    @subscriptions.add atom.workspace.onWillDestroyPaneItem(onWillDestroyPaneItem)
-    @subscriptions.add atom.workspace.onDidOpen(onDidOpen)
+        if atom.config.get('project-find-navigation.hideProjectFindPanel')
+          panel = _.detect atom.workspace.getBottomPanels(), (panel) ->
+            panel.getItem().constructor.name is 'ProjectFindView'
+          panel?.hide()
 
   deactivate: ->
     @flasher = nulll
@@ -98,60 +93,65 @@ module.exports =
 
   confirm: ({keepPane}={}) ->
     keepPane ?= false
-    return unless view = @resultsView.find('.selected').view()
-    range =
-      if _.isArray(view.match.range)
-        new Range(view.match.range...)
-      else
-        view.match.range
+    view = @resultsView.find('.selected').view()
+    return unless view
 
-    @open view.filePath, (editor, {srcPane, srcItem}) =>
+    range = view.match.range
+    range = new Range(range...) if _.isArray(range)
+
+    @open view.filePath, (editor, {srcItem}) =>
       if keepPane
-        editor.scrollToBufferPosition(range.start)
-        srcPane.activate()
-        srcPane.activateItem srcItem
+        editor.scrollToBufferPosition range.start
+        @activatePaneItem srcItem
       else
-        editor.setCursorBufferPosition(range.start)
+        editor.setCursorBufferPosition range.start
 
-      @refreshVisibleEditor('open')
+      @refreshVisibleEditor()
       @flasher.flash editor, range
 
   open: (filePath, callback) ->
-    @opening = true
-
     srcPane = @getActivePane()
     srcItem = srcPane.getActiveItem()
+
     if pane = @getAdjacentPane()
       pane.activate()
     else
-      originalPane.splitRight()
-    atom.workspace.open(filePath).done (editor) ->
-      callback(editor, {srcPane, srcItem})
+      srcPane.splitRight()
 
-    @opening = false
+    atom.workspace.open(filePath).done (editor) ->
+      callback(editor, {srcItem})
 
   refreshVisibleEditor: ->
-    for editor in @getVisibleEditors()
-      if @decorationsByEditorID[editor.id]
-        continue
+    visibleEditors = @getVisibleEditors()
+    for editor in visibleEditors
+      continue if @decorationsByEditorID[editor.id]
+
       if matches = @model.getResult(editor.getPath())?.matches
         ranges = _.pluck(matches, 'range')
-        @decorationsByEditorID[editor.id] = @decorateRanges(editor, ranges)
+        decorations = (@decorateRange(editor, range) for range in ranges)
+        @decorationsByEditorID[editor.id] = decorations
+
+    # Clear decorations on editor which is no longer visible.
+    visibleEditorsIDs = visibleEditors.map (editor) -> editor.id
+    for editorID, decorations of @decorationsByEditorID when Number(editorID) not in visibleEditorsIDs
+      for decoration in decorations
+        decoration.getMarker().destroy()
+      delete @decorationsByEditorID[editorID]
 
   activateResultsPane: ->
     return unless @resultPaneView
-    item = _.detect atom.workspace.getPaneItems(), (item) ->
-      console.log item.constructor.name
-      item.constructor.name is 'ResultsPaneView'
-      # item instanceof @resultPaneView.constructor
-    pane = null
-
-    pane = atom.workspace.paneForItem item
-    pane.activate()
-    pane.activateItem item
+    item = _.detect atom.workspace.getPaneItems(), (item) =>
+      item instanceof @resultPaneView.constructor
+    @activatePaneItem item
 
   # Utility
   # -------------------------
+  activatePaneItem: (item) ->
+    pane = atom.workspace.paneForItem item
+    if pane?
+      pane.activate()
+      pane.activateItem item
+
   clearAllDecorations: ->
     for editorID, decorations of @decorationsByEditorID
       for decoration in decorations
@@ -164,24 +164,21 @@ module.exports =
         decoration.getMarker().destroy()
         delete @decorationsByEditorID[editor.id]
 
-  decorateRanges: (editor, ranges) ->
-    decorations = []
-    for range in ranges
-      decorations.push @decorateRange(editor, range)
-    decorations
-
+  # Return decoration from range
   decorateRange: (editor, range) ->
     marker = editor.markBufferRange range,
       invalidate: 'inside'
       persistent: false
 
-    decoration = editor.decorateMarker marker,
+    editor.decorateMarker marker,
       type:  'highlight'
       class: 'project-find-navigation-match'
-    decoration
 
   getActivePane: ->
     atom.workspace.getActivePane()
+
+  getActivePaneItem: ->
+    atom.workspace.getActivePaneItem()
 
   getAdjacentPane: ->
     pane = @getActivePane()
