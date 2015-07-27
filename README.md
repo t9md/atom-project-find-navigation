@@ -18,7 +18,7 @@ This package's code is greatly and directly depending on internal variables and 
 
 So this package might not work on future version of find-and-replace.  
 If code change made on find-and-replace in future was big, I might give up this navigation hack package.  
-So essentially this is proof of concept to investigate how project-find's result pane navigation could be improved.
+So essentially this is proof of concept to investigate how project-find's result pane navigation could be improved.  
 
 # Features
 
@@ -27,7 +27,6 @@ Here is summary table of what project-find-navigation provides.
 |  action       | pure project-find  | project-find-navigation  |
 | ------------- |-------------| -----|
 | `mousedown`   | Jump to found entry and select | Scroll to found entry with flashing effect, focus remains on result pane |
-| `dblclick`   | N/A | Jump to found entry with flashing, no select |
 | confirm   | Jump to found entry and select | Jump to found entry with flashing effect, no select |
 | confirm-and-continue | N/A | Scroll to found entry with flashing effect, focus remains on result pane |
 | select-next-and-confirm | N/A | Select next item and then confirm-and-continue(auto preview) |
@@ -36,6 +35,7 @@ Here is summary table of what project-find-navigation provides.
 
 Other features.
 
+- Focus to result-pane by keymap.
 - Highlight(decorate) found entries on editor, auto-cleared when result-pane destroyed.
 - Open found entry in **adjacent** pane. This mean, if result-pane was on left pane open found entry on right pane when confirmed.
 
@@ -58,6 +58,20 @@ My setting, navigate results-pane with Vim like keymap.
 'atom-workspace:not([mini])':
   # This key override window:toggle-full-screen(I'm not using it).
   'ctrl-cmd-f': 'project-find-navigation:activate-results-pane'
+```
+
+# Style
+
+In your `styles.less`, you can tweak match entry's decoration like following.
+
+```less
+@import "syntax-variables";
+atom-text-editor::shadow {
+  .project-find-navigation-match .region {
+    background-color: @syntax-selection-color;
+    border: none;
+  }
+}
 ```
 
 # TODO

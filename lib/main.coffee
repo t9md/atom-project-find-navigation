@@ -21,7 +21,7 @@ module.exports =
 
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.commands.add 'atom-workspace',
-      'project-find-navigation:activate-results-pane': => @activateResultsPane()
+      'project-find-navigation:activate-results-pane': => @activateResultsPaneItem()
 
     @subscriptions.add atom.workspace.onWillDestroyPaneItem ({item}) =>
       if @resultPaneView is item
@@ -38,7 +38,7 @@ module.exports =
           panel?.hide()
 
   deactivate: ->
-    @flasher = nulll
+    @flasher = null
     @reset()
     @subscriptions.dispose()
     @subscriptions = null
@@ -57,6 +57,11 @@ module.exports =
   improve: (@resultPaneView) ->
     {@model, @resultsView} = @resultPaneView
     @decorationsByEditorID = {}
+
+    # [FIXME]
+    # This dispose() shuldn't necessary but simetimes onDidFinishSearching hook called multiple
+    # time.
+    @improveSubscriptions?.dispose()
 
     @improveSubscriptions = new CompositeDisposable
     @improveSubscriptions.add @model.onDidFinishSearching =>
@@ -80,16 +85,17 @@ module.exports =
             # Collapse or expand tree
             view.confirm()
           else
-          @confirm(keepPane: eventType is 'mousedown')
+            @confirm(keepFocusOnResultsPane: true)
+            # @confirm(keepFocusOnResultsPane: eventType is 'mousedown')
         @resultsView.renderResults()
 
     @resultsView.off 'mousedown'
     @resultsView.on 'mousedown', '.match-result, .path', mouseHandler('mousedown')
-    @resultsView.on 'dblclick' , '.match-result, .path', mouseHandler('dblclick')
+    # @resultsView.on 'dblclick' , '.match-result, .path', mouseHandler('dblclick')
 
     @improveSubscriptions.add atom.commands.add @resultPaneView.element,
       'project-find-navigation:confirm':                 => @confirm()
-      'project-find-navigation:confirm-and-continue':    => @confirm keepPane: true
+      'project-find-navigation:confirm-and-continue':    => @confirm keepFocusOnResultsPane: true
       'project-find-navigation:select-next-and-confirm': => @selectAndConfirm 'next'
       'project-find-navigation:select-prev-and-confirm': => @selectAndConfirm 'prev'
 
@@ -98,35 +104,28 @@ module.exports =
       @resultsView.selectNextResult()
     else if direction is 'prev'
       @resultsView.selectPreviousResult()
-    @confirm keepPane: true
+    @confirm keepFocusOnResultsPane: true
 
-  confirm: ({keepPane}={}) ->
-    keepPane ?= false
+  confirm: ({keepFocusOnResultsPane}={}) ->
+    keepFocusOnResultsPane ?= false
     view = @resultsView.find('.selected').view()
     return unless range = view?.match?.range
-
     range = Range.fromObject(range)
-    @open view.filePath, (editor, {srcItem}) =>
-      if keepPane
+
+    if pane = @getAdjacentPaneFor(@getResultsPane())
+      pane.activate()
+    else
+      @getActivePane().splitRight()
+
+    atom.workspace.open(view.filePath).done (editor) =>
+      if keepFocusOnResultsPane
         editor.scrollToBufferPosition range.start
-        @activatePaneItem srcItem
+        @activateResultsPaneItem()
       else
         editor.setCursorBufferPosition range.start
 
       @refreshVisibleEditor()
       @flasher.flash editor, range
-
-  open: (filePath, callback) ->
-    srcPane = @getActivePane()
-    srcItem = srcPane.getActiveItem()
-
-    if pane = @getAdjacentPane()
-      pane.activate()
-    else
-      srcPane.splitRight()
-
-    atom.workspace.open(filePath).done (editor) ->
-      callback(editor, {srcItem})
 
   refreshVisibleEditor: ->
     visibleEditors = @getVisibleEditors()
@@ -143,11 +142,16 @@ module.exports =
     for editorID, decorations of @decorationsByEditorID when Number(editorID) not in visibleEditorsIDs
       @clearDecorationsForEditor editorID
 
-  activateResultsPane: ->
+  activateResultsPaneItem: ->
+    @activatePaneItem @getResultsPaneItem()
+
+  getResultsPaneItem: ->
     return unless @resultPaneView
-    item = _.detect atom.workspace.getPaneItems(), (item) =>
+    _.detect atom.workspace.getPaneItems(), (item) =>
       item instanceof @resultPaneView.constructor
-    @activatePaneItem item
+
+  getResultsPane: ->
+    atom.workspace.paneForItem @getResultsPaneItem()
 
   # Utility
   # -------------------------
@@ -183,8 +187,7 @@ module.exports =
   getActivePaneItem: ->
     atom.workspace.getActivePaneItem()
 
-  getAdjacentPane: ->
-    pane = @getActivePane()
+  getAdjacentPaneFor: (pane) ->
     return unless children = pane.getParent().getChildren?()
     index = children.indexOf pane
     options = split: 'left', activatePane: false

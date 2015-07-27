@@ -1,3 +1,8 @@
+## 0.0.7 - FIX
+- FIX: opening item on adjacentPane() should based on resultPane. #3
+- Remove 'dblclick' event to avoid confusion and easy to maintain.
+
+Collapse/Expand tree on filename clicked.
 ## 0.0.6 - FIX
 - Collapse/Expand tree on filename clicked.
 
