@@ -13,7 +13,6 @@ Config =
 module.exports =
   config: Config
   decorationsByEditorID: null
-  decorationsByEditor: null
   URI: 'atom://find-and-replace/project-results'
 
   activate: ->
@@ -48,7 +47,7 @@ module.exports =
     @improveSubscriptions.dispose()
     @improveSubscriptions = null
 
-    @decorationsByEditorID = {}
+    @decorationsByEditorID = null
 
     @resultPaneView = null
     @resultsView = null
@@ -75,7 +74,13 @@ module.exports =
         @resultsView.find('.selected').removeClass('selected')
         view = $(target).view()
         view.addClass('selected')
-        @confirm(keepPane: eventType is 'mousedown') if which is 1 and not ctrlKey
+
+        if which is 1 and not ctrlKey
+          if view.hasClass('list-nested-item')
+            # Collapse or expand tree
+            view.confirm()
+          else
+          @confirm(keepPane: eventType is 'mousedown')
         @resultsView.renderResults()
 
     @resultsView.off 'mousedown'

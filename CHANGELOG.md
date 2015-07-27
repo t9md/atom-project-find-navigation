@@ -1,3 +1,6 @@
+## 0.0.6 - FIX
+- Collapse/Expand tree on filename clicked.
+
 ## 0.0.5 - FIX
 - Fix error when clicking filename.
 
