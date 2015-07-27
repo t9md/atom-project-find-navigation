@@ -13,6 +13,7 @@ Config =
 module.exports =
   config: Config
   decorationsByEditorID: null
+  decorationsByEditor: null
   URI: 'atom://find-and-replace/project-results'
 
   activate: ->
@@ -25,7 +26,7 @@ module.exports =
 
     @subscriptions.add atom.workspace.onWillDestroyPaneItem ({item}) =>
       if @resultPaneView is item
-        @clearAllDecorations()
+        @clearDecorationsForEditors _.keys(@decorationsByEditorID)
         @reset()
 
     @subscriptions.add atom.workspace.onDidOpen ({uri, item}) =>
@@ -41,10 +42,13 @@ module.exports =
     @flasher = nulll
     @reset()
     @subscriptions.dispose()
+    @subscriptions = null
 
   reset: ->
     @improveSubscriptions.dispose()
     @improveSubscriptions = null
+
+    @decorationsByEditorID = {}
 
     @resultPaneView = null
     @resultsView = null
@@ -52,12 +56,12 @@ module.exports =
     @opening = null
 
   improve: (@resultPaneView) ->
-    @decorationsByEditorID = {}
     {@model, @resultsView} = @resultPaneView
+    @decorationsByEditorID = {}
 
     @improveSubscriptions = new CompositeDisposable
     @improveSubscriptions.add @model.onDidFinishSearching =>
-      @clearVisibleEditorDecorations()
+      @clearDecorationsForEditors @getVisibleEditors()
       @refreshVisibleEditor()
 
     @improveSubscriptions.add atom.workspace.onDidChangeActivePaneItem (item) =>
@@ -96,8 +100,7 @@ module.exports =
     view = @resultsView.find('.selected').view()
     return unless range = view?.match?.range
 
-    range = new Range(range...) if _.isArray(range)
-
+    range = Range.fromObject(range)
     @open view.filePath, (editor, {srcItem}) =>
       if keepPane
         editor.scrollToBufferPosition range.start
@@ -133,9 +136,7 @@ module.exports =
     # Clear decorations on editor which is no longer visible.
     visibleEditorsIDs = visibleEditors.map (editor) -> editor.id
     for editorID, decorations of @decorationsByEditorID when Number(editorID) not in visibleEditorsIDs
-      for decoration in decorations
-        decoration.getMarker().destroy()
-      delete @decorationsByEditorID[editorID]
+      @clearDecorationsForEditor editorID
 
   activateResultsPane: ->
     return unless @resultPaneView
@@ -151,17 +152,15 @@ module.exports =
       pane.activate()
       pane.activateItem item
 
-  clearAllDecorations: ->
-    for editorID, decorations of @decorationsByEditorID
-      for decoration in decorations
-        decoration.getMarker().destroy()
-    @decorationsByEditorID = null
+  clearDecorationsForEditors: (editors) ->
+    for editor in editors
+      @clearDecorationsForEditor(editor)
 
-  clearVisibleEditorDecorations: ->
-    for editor in @getVisibleEditors()
-      for decoration in @decorationsByEditorID[editor.id] ? []
-        decoration.getMarker().destroy()
-        delete @decorationsByEditorID[editor.id]
+  clearDecorationsForEditor: (editor) ->
+    editorID = if (editor instanceof TextEditor) then editor.id else editor
+    for decoration in @decorationsByEditorID[editorID] ? []
+      decoration.getMarker().destroy()
+      delete @decorationsByEditorID[editorID]
 
   # Return decoration from range
   decorateRange: (editor, range) ->
