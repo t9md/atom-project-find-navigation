@@ -1,3 +1,4 @@
+## 0.0.9 - Doc
 ## 0.0.8 - Improve
 - Add global next/prev command to move around results #4
 - Refactoring

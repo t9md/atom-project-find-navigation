@@ -50,10 +50,6 @@ e.g.
 My setting, navigate results-pane with Vim like keymap.
 
 ```coffeescript
-'atom-workspace atom-text-editor:not([mini])':
-  'ctrl-cmd-n': 'project-find-navigation:next'
-  'ctrl-cmd-p': 'project-find-navigation:prev'
-
 '.preview-pane.project-find-navigation':
   'l':     'core:move-right'
   'h':     'core:move-left'
@@ -64,6 +60,9 @@ My setting, navigate results-pane with Vim like keymap.
 'atom-workspace:not([mini])':
   # This key override window:toggle-full-screen(I'm not using it).
   'ctrl-cmd-f': 'project-find-navigation:activate-results-pane'
+
+  'ctrl-cmd-n': 'project-find-navigation:next'
+  'ctrl-cmd-p': 'project-find-navigation:prev'
 ```
 
 # Style
