@@ -1,6 +1,5 @@
 {CompositeDisposable, Range, TextEditor} = require 'atom'
 
-util = require 'util'
 _    = require 'underscore-plus'
 {$} = require 'atom-space-pen-views'
 
@@ -59,8 +58,8 @@ module.exports =
     @decorationsByEditorID = {}
 
     # [FIXME]
-    # This dispose() shuldn't necessary but simetimes onDidFinishSearching hook called multiple
-    # time.
+    # This dispose() shuldn't necessary but sometimes onDidFinishSearching
+    # hook called multiple time.
     @improveSubscriptions?.dispose()
 
     @improveSubscriptions = new CompositeDisposable
@@ -74,7 +73,7 @@ module.exports =
 
     @resultPaneView.addClass 'project-find-navigation'
 
-    mouseHandler = (eventType) =>
+    mouseHandler = =>
       ({target, which, ctrlKey}) =>
         @resultsView.find('.selected').removeClass('selected')
         view = $(target).view()
@@ -86,12 +85,10 @@ module.exports =
             view.confirm()
           else
             @confirm(keepFocusOnResultsPane: true)
-            # @confirm(keepFocusOnResultsPane: eventType is 'mousedown')
         @resultsView.renderResults()
 
     @resultsView.off 'mousedown'
-    @resultsView.on 'mousedown', '.match-result, .path', mouseHandler('mousedown')
-    # @resultsView.on 'dblclick' , '.match-result, .path', mouseHandler('dblclick')
+    @resultsView.on 'mousedown', '.match-result, .path', mouseHandler()
 
     @improveSubscriptions.add atom.commands.add @resultPaneView.element,
       'project-find-navigation:confirm':                 => @confirm()
@@ -100,10 +97,9 @@ module.exports =
       'project-find-navigation:select-prev-and-confirm': => @selectAndConfirm 'prev'
 
   selectAndConfirm: (direction) ->
-    if direction is 'next'
-      @resultsView.selectNextResult()
-    else if direction is 'prev'
-      @resultsView.selectPreviousResult()
+    switch direction
+      when 'next' then @resultsView.selectNextResult()
+      when 'prev' then @resultsView.selectPreviousResult()
     @confirm keepFocusOnResultsPane: true
 
   confirm: ({keepFocusOnResultsPane}={}) ->
@@ -112,10 +108,10 @@ module.exports =
     return unless range = view?.match?.range
     range = Range.fromObject(range)
 
-    if pane = @getAdjacentPaneFor(@getResultsPane())
+    if pane = @getAdjacentPaneFor(atom.workspace.paneForItem(@resultPaneView))
       pane.activate()
     else
-      @getActivePane().splitRight()
+      atom.workspace.getActivePane().splitRight()
 
     atom.workspace.open(view.filePath).done (editor) =>
       if keepFocusOnResultsPane
@@ -143,15 +139,7 @@ module.exports =
       @clearDecorationsForEditor editorID
 
   activateResultsPaneItem: ->
-    @activatePaneItem @getResultsPaneItem()
-
-  getResultsPaneItem: ->
-    return unless @resultPaneView
-    _.detect atom.workspace.getPaneItems(), (item) =>
-      item instanceof @resultPaneView.constructor
-
-  getResultsPane: ->
-    atom.workspace.paneForItem @getResultsPaneItem()
+    @activatePaneItem @resultPaneView
 
   # Utility
   # -------------------------
@@ -180,9 +168,6 @@ module.exports =
     editor.decorateMarker marker,
       type:  'highlight'
       class: 'project-find-navigation-match'
-
-  getActivePane: ->
-    atom.workspace.getActivePane()
 
   getActivePaneItem: ->
     atom.workspace.getActivePaneItem()
