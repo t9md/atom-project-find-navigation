@@ -1,3 +1,7 @@
+## 0.0.8 - Improve
+- Add global next/prev command to move around results #4
+- Refactoring
+
 ## 0.0.7 - FIX
 - FIX: opening item on adjacentPane() should based on resultPane. #3
 - Remove 'dblclick' event to avoid confusion and easy to maintain.
