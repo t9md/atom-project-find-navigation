@@ -24,14 +24,16 @@ So essentially this is proof of concept to investigate how project-find's result
 
 Here is summary table of what project-find-navigation provides.
 
-|  action       | pure project-find  | project-find-navigation  |
-| ------------- |-------------| -----|
-| `mousedown`   | Jump to found entry and select | Scroll to found entry with flashing effect, focus remains on result pane |
-| confirm   | Jump to found entry and select | Jump to found entry with flashing effect, no select |
-| confirm-and-continue | N/A | Scroll to found entry with flashing effect, focus remains on result pane |
-| select-next-and-confirm | N/A | Select next item and then confirm-and-continue(auto preview) |
-| select-prev-and-confirm | N/A | Select previous item and then confirm-and-continue(auto preview) |
-| activate-results-pane | N/A | Change focus to results-pane if exists |
+| available on |  command       | pure project-find  | project-find-navigation  |
+| ------------ | ------------- |-------------| -----|
+| results-pane | mousedown   | Jump to found entry and select | Scroll to found entry with flashing effect, focus remains on result pane |
+| results-pane | confirm   | Jump to found entry and select | Jump to found entry with flashing effect, no select |
+| results-pane | confirm-and-continue | N/A | Scroll to found entry with flashing effect, focus remains on result pane |
+| results-pane | select-next-and-confirm | N/A | Select next item and then confirm-and-continue(auto preview) |
+| results-pane | select-prev-and-confirm | N/A | Select previous item and then confirm-and-continue(auto preview) |
+| global | next | N/A | goto next result |
+| global | prev | N/A | goto previous result |
+| global | activate-results-pane | N/A | Focus to results-pane if exists |
 
 Other features.
 
@@ -48,6 +50,10 @@ e.g.
 My setting, navigate results-pane with Vim like keymap.
 
 ```coffeescript
+'atom-workspace atom-text-editor:not([mini])':
+  'ctrl-cmd-n': 'project-find-navigation:next'
+  'ctrl-cmd-p': 'project-find-navigation:prev'
+
 '.preview-pane.project-find-navigation':
   'l':     'core:move-right'
   'h':     'core:move-left'

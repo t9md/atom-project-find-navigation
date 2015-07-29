@@ -21,6 +21,8 @@ module.exports =
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.commands.add 'atom-workspace',
       'project-find-navigation:activate-results-pane': => @activateResultsPaneItem()
+      'project-find-navigation:next': => @confirm 'next', split: false, focusResultsPane: false
+      'project-find-navigation:prev': => @confirm 'prev', split: false, focusResultsPane: false
 
     @subscriptions.add atom.workspace.onWillDestroyPaneItem ({item}) =>
       if @resultPaneView is item
@@ -84,26 +86,32 @@ module.exports =
             # Collapse or expand tree
             view.confirm()
           else
-            @confirm(keepFocusOnResultsPane: true)
+            @confirm('here', focusResultsPane: true, split: true)
         @resultsView.renderResults()
 
     @resultsView.off 'mousedown'
     @resultsView.on 'mousedown', '.match-result, .path', mouseHandler()
 
-    @improveSubscriptions.add atom.commands.add @resultPaneView.element,
-      'project-find-navigation:confirm':                 => @confirm()
-      'project-find-navigation:confirm-and-continue':    => @confirm keepFocusOnResultsPane: true
-      'project-find-navigation:select-next-and-confirm': => @selectAndConfirm 'next'
-      'project-find-navigation:select-prev-and-confirm': => @selectAndConfirm 'prev'
+    commands =
+      'confirm':                 => @confirm 'here', split: false, focusResultsPane: false
+      'confirm-and-continue':    => @confirm 'here', split: false, focusResultsPane: true
+      'select-next-and-confirm': => @confirm 'next', split: true,  focusResultsPane: true
+      'select-prev-and-confirm': => @confirm 'prev', split: true,  focusResultsPane: true
 
-  selectAndConfirm: (direction) ->
-    switch direction
+    for command, fn of commands
+      do (fn) =>
+        name = "project-find-navigation:#{command}"
+        @improveSubscriptions.add atom.commands.add(@resultPaneView.element, name, fn)
+
+  confirm: (where, {focusResultsPane, split}={}) ->
+    return unless @resultsView
+    focusResultsPane ?= false
+    split ?= true
+
+    switch where
       when 'next' then @resultsView.selectNextResult()
       when 'prev' then @resultsView.selectPreviousResult()
-    @confirm keepFocusOnResultsPane: true
 
-  confirm: ({keepFocusOnResultsPane}={}) ->
-    keepFocusOnResultsPane ?= false
     view = @resultsView.find('.selected').view()
     return unless range = view?.match?.range
     range = Range.fromObject(range)
@@ -111,10 +119,11 @@ module.exports =
     if pane = @getAdjacentPaneFor(atom.workspace.paneForItem(@resultPaneView))
       pane.activate()
     else
-      atom.workspace.getActivePane().splitRight()
+      if split
+        atom.workspace.getActivePane().splitRight()
 
     atom.workspace.open(view.filePath).done (editor) =>
-      if keepFocusOnResultsPane
+      if focusResultsPane
         editor.scrollToBufferPosition range.start
         @activateResultsPaneItem()
       else
