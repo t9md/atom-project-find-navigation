@@ -2,23 +2,21 @@
 
 ![gif](https://raw.githubusercontent.com/t9md/t9md/55e7fd32500d45751e2d7824f008e42b06763cd1/img/atom-project-find-navigation.gif)
 
-Improve project-find-result navigation by dirty hack.
+Provides keyboard navigation for project-find-result.
 
 # What's this?
 
-[find-and-replace](https://github.com/atom/find-and-replace) provide, project-find.  
-I like this feature, but navigation need to be improve.  
-Its' lacking of keyboard navigation.  
-
-This package allow you keyboard navigation on results view of project-find.  
+Provide keyboard navigation for project-find-result of [find-and-replace](https://github.com/atom/find-and-replace) package.  
+find-and-replace provides `project-find:show` command which shows found entries in project.  
+With this package you can navigate each match with keyboard.  
 
 # Excuse
 
-This package's code is greatly and directly depending on internal variables and functions which  [find-and-replace](https://github.com/atom/find-and-replace) provides.
+This package's code is greatly and directly depending on internal variables and functions of [find-and-replace](https://github.com/atom/find-and-replace) provides.
 
-So this package might not work on future version of find-and-replace.  
-If code change made on find-and-replace in future was big, I might give up this navigation hack package.  
-So essentially this is proof of concept to investigate how project-find's result pane navigation could be improved.  
+So this package might not work in future version of find-and-replace.  
+If code change made on find-and-replace was too big, I might give up this navigation hack package.  
+So essentially this is proof of concept to evaluate how project-find's result pane navigation could be improved.  
 
 # Features
 
@@ -43,7 +41,7 @@ Other features.
 
 # Keymap
 
-No keymap by default.
+No keymap provides by default.
 
 e.g.
 
@@ -51,16 +49,15 @@ My setting, navigate results-pane with Vim like keymap.
 
 ```coffeescript
 '.preview-pane.project-find-navigation':
-  'l':     'core:move-right'
-  'h':     'core:move-left'
-  'j':     'project-find-navigation:select-next-and-confirm'
-  'k':     'project-find-navigation:select-prev-and-confirm'
+  'l': 'core:move-right'
+  'h': 'core:move-left'
+  'j': 'project-find-navigation:select-next-and-confirm'
+  'k': 'project-find-navigation:select-prev-and-confirm'
   'enter': 'project-find-navigation:confirm'
 
 'atom-workspace:not([mini])':
   # This key override window:toggle-full-screen(I'm not using it).
   'ctrl-cmd-f': 'project-find-navigation:activate-results-pane'
-
   'ctrl-cmd-n': 'project-find-navigation:next'
   'ctrl-cmd-p': 'project-find-navigation:prev'
 ```
@@ -78,6 +75,3 @@ atom-text-editor::shadow {
   }
 }
 ```
-
-# TODO
-- [x] Refactoring
