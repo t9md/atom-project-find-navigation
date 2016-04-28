@@ -1,3 +1,6 @@
+## 0.1.1
+- Fix typo for config param `flashDuration` by @Globegitter.
+
 ## 0.1.0
 - Refactoring
 - Fix deprecation warning
