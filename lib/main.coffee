@@ -62,7 +62,7 @@ module.exports =
     {@model, @resultsView} = @resultPaneView
 
     # [FIXME]
-    # This dispose() shuldn't necessary but sometimes onDidFinishSearching
+    # This dispose() shuldn't be necessary but sometimes onDidFinishSearching
     # hook called multiple time.
     @improveSubscriptions?.dispose()
 
