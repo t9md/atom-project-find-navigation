@@ -50,10 +50,21 @@ decorateRange = (editor, range, options) ->
       flashDisposable = null
   marker
 
+smartScrollToBufferPosition = (editor, point) ->
+  editorElement = atom.views.getView(editor)
+  editorAreaHeight = editor.getLineHeightInPixels() * (editor.getRowsPerPage() - 1)
+  onePageUp = editorElement.getScrollTop() - editorAreaHeight # No need to limit to min=0
+  onePageDown = editorElement.getScrollBottom() + editorAreaHeight
+  target = editorElement.pixelPositionForBufferPosition(point).top
+
+  center = (onePageDown < target) or (target < onePageUp)
+  editor.scrollToBufferPosition(point, {center})
+
 module.exports = {
   isTextEditor
   getVisibleEditors
   getAdjacentPaneForPane
   activatePaneItem
   decorateRange
+  smartScrollToBufferPosition
 }

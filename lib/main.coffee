@@ -5,6 +5,7 @@ _ = require 'underscore-plus'
 {
   isTextEditor, decorateRange, getVisibleEditors
   getAdjacentPaneForPane, activatePaneItem
+  smartScrollToBufferPosition
 } = require './utils'
 
 Config =
@@ -30,7 +31,7 @@ module.exports =
       'project-find-navigation:prev': => @confirm('prev', split: false, focusResultsPane: false)
 
     @subscribe atom.workspace.onWillDestroyPaneItem ({item}) =>
-      @disimprove() if (@resultPaneView is item)
+      @disimprove() if (item is @resultPaneView)
 
     @subscribe atom.workspace.onDidOpen ({uri, item}) =>
       if (not @resultPaneView?) and (uri is @URI)
@@ -47,15 +48,11 @@ module.exports =
   deactivate: ->
     @reset()
     @subscriptions.dispose()
-    @subscriptions = null
-    @markersByEditor = null
+    {@subscriptions, @markersByEditor} = {}
 
   reset: ->
     @improveSubscriptions.dispose()
-    {
-      @improveSubscriptions
-      @resultPaneView, @model, @resultsView
-    } = {}
+    {@improveSubscriptions, @resultPaneView, @model, @resultsView} = {}
 
   disimprove: ->
     @clearAllDecorations()
@@ -73,12 +70,10 @@ module.exports =
     subscribe = (subscription) =>
       @improveSubscriptions.add(subscription)
 
-    subscribe @model.onDidFinishSearching =>
-      @refreshVisibleEditors()
+    subscribe @model.onDidFinishSearching(@refreshVisibleEditors.bind(this))
 
     subscribe atom.workspace.onDidChangeActivePaneItem (item) =>
-      return unless isTextEditor(item)
-      @refreshVisibleEditors()
+      @refreshVisibleEditors() if isTextEditor(item)
 
     @resultPaneView.addClass('project-find-navigation')
 
@@ -105,27 +100,28 @@ module.exports =
       'select-prev-and-confirm': => @confirm('prev', split: true,  focusResultsPane: true)
     commandPrefix = "project-find-navigation"
     commands = _.mapObject(commands, (name, fn) -> ["#{commandPrefix}:#{name}", fn])
+
     subscribe atom.commands.add(@resultPaneView.element, commands)
 
   confirm: (where, {focusResultsPane, split}={}) ->
-    return unless @resultsView
+    return unless @resultsView?
     switch where
       when 'next' then @resultsView.selectNextResult()
       when 'prev' then @resultsView.selectPreviousResult()
 
     view = @resultsView.find('.selected').view()
-    return unless range = view?.match?.range
+    range = view?.match?.range
+    return unless range
     range = Range.fromObject(range)
 
     if pane = getAdjacentPaneForPane(atom.workspace.paneForItem(@resultPaneView))
       pane.activate()
     else
-      if split
-        atom.workspace.getActivePane().splitRight()
+      atom.workspace.getActivePane().splitRight() if split
 
     atom.workspace.open(view.filePath).done (editor) =>
       if focusResultsPane
-        editor.scrollToBufferPosition(range.start)
+        smartScrollToBufferPosition(editor, range.start)
         @activateResultsPaneItem()
       else
         editor.setCursorBufferPosition(range.start)
