@@ -13,7 +13,7 @@ Config =
     type: 'boolean'
     default: true
     description: "Hide Project Find Panel on results pane shown"
-  flashDration:
+  flashDuration:
     type: 'integer'
     default: 300
 
@@ -129,7 +129,7 @@ module.exports =
       @refreshVisibleEditors()
       decorateRange editor, range,
         class: 'project-find-navigation-flash'
-        timeout: atom.config.get('project-find-navigation.flashDration')
+        timeout: atom.config.get('project-find-navigation.flashDuration')
 
   decorateEditor: (editor) ->
     matches = @model.getResult(editor.getPath())?.matches
