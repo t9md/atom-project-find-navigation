@@ -1,3 +1,4 @@
+_ = require 'underscore-plus'
 {Disposable} = require 'atom'
 
 isTextEditor = (object) ->
@@ -47,6 +48,7 @@ decorateRange = (editor, range, options) ->
       clearTimeout(timeoutID)
       marker?.destroy()
       flashDisposable = null
+  marker
 
 module.exports = {
   isTextEditor

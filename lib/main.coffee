@@ -23,6 +23,7 @@ module.exports =
 
   activate: ->
     @markersByEditorID = {}
+    @markersByEditor = new Map
 
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.commands.add 'atom-workspace',
@@ -31,9 +32,7 @@ module.exports =
       'project-find-navigation:prev': => @confirm('prev', split: false, focusResultsPane: false)
 
     @subscriptions.add atom.workspace.onWillDestroyPaneItem ({item}) =>
-      if @resultPaneView is item
-        @clearMarkersForEditors _.keys(@markersByEditorID)
-        @reset()
+      @disimprove() if (@resultPaneView is item)
 
     @subscriptions.add atom.workspace.onDidOpen ({uri, item}) =>
       if (not @resultPaneView?) and (uri is @URI)
@@ -60,6 +59,10 @@ module.exports =
     @model = null
     @opening = null
 
+  disimprove: ->
+    @clearMarkersForEditors _.keys(@markersByEditorID)
+    @reset()
+
   improve: (@resultPaneView) ->
     {@model, @resultsView} = @resultPaneView
     @markersByEditorID = {}
@@ -78,7 +81,7 @@ module.exports =
       return unless isTextEditor(item)
       @refreshVisibleEditor()
 
-    @resultPaneView.addClass 'project-find-navigation'
+    @resultPaneView.addClass('project-find-navigation')
 
     mouseHandler = =>
       ({target, which, ctrlKey}) =>
@@ -152,7 +155,8 @@ module.exports =
             class: 'project-find-navigation-match'
 
         ranges = _.pluck(matches, 'range')
-        @markersByEditorID[editor.id] = (decorate(editor, range) for range in ranges)
+        markers = (decorate(editor, range) for range in ranges)
+        @markersByEditorID[editor.id] = markers
 
     # Clear decorations on editor which is no longer visible.
     visibleEditorsIDs = visibleEditors.map (editor) -> editor.id
@@ -172,4 +176,4 @@ module.exports =
     editorID = if isTextEditor(editor) then editor.id else editor
     for marker in @markersByEditorID[editorID] ? []
       marker?.destroy()
-      delete @markersByEditorID[editorID]
+    delete @markersByEditorID[editorID]
