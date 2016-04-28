@@ -119,7 +119,7 @@ module.exports =
     else
       atom.workspace.getActivePane().splitRight() if split
 
-    atom.workspace.open(view.filePath).done (editor) =>
+    atom.workspace.open(view.filePath).then (editor) =>
       if focusResultsPane
         smartScrollToBufferPosition(editor, range.start)
         @activateResultsPaneItem()
