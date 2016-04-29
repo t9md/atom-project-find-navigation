@@ -1,0 +1,7 @@
+'.preview-pane.project-find-navigation':
+  'l': 'core:move-right'
+  'h': 'core:move-left'
+  'j': 'project-find-navigation:show-next'
+  'k': 'project-find-navigation:show-prev'
+  'o': 'core:confirm'
+  'q': 'core:close'

@@ -22,15 +22,15 @@ So essentially this is proof of concept to evaluate how project-find's result pa
 
 Here is summary table of what project-find-navigation provides.
 
-| available on |  command       | pure project-find  | project-find-navigation  |
-| ------------ | ------------- |-------------| -----|
-| results-pane | confirm   | Jump to found entry and select | Jump to found entry with flashing effect, no select |
-| results-pane | confirm-and-continue | N/A | Scroll to found entry with flashing effect, focus remains on result pane |
-| results-pane | select-next-and-confirm | N/A | Select next item and then confirm-and-continue(auto preview) |
-| results-pane | select-prev-and-confirm | N/A | Select previous item and then confirm-and-continue(auto preview) |
-| global | next | N/A | goto next result |
-| global | prev | N/A | goto previous result |
-| global | activate-results-pane | N/A | Focus to results-pane if exists |
+| available on | command               | pure project-find              | project-find-navigation                                                  |
+|:-------------|:----------------------|:-------------------------------|:-------------------------------------------------------------------------|
+| results-pane | confirm               | Jump to found entry and select | Jump to found entry with flashing effect, no select                      |
+| results-pane | confirm-and-continue  | N/A                            | Scroll to found entry with flashing effect, focus remains on result pane |
+| results-pane | show-next             | N/A                            | Select next item and then confirm-and-continue(auto preview)             |
+| results-pane | show-prev             | N/A                            | Select previous item and then confirm-and-continue(auto preview)         |
+| global       | next                  | N/A                            | goto next result                                                         |
+| global       | prev                  | N/A                            | goto previous result                                                     |
+| global       | activate-results-pane | N/A                            | Focus to results-pane if exists                                          |
 
 Other features.
 
@@ -40,20 +40,27 @@ Other features.
 
 # Keymap
 
-No keymap provides by default.
+From v0.2.0, default keymap are provided for result-pane
+But you still **need to set keymap for workspace**.
+
+### On result pane
+
+| keystroke      | command                             | action                                |
+|:---------------|:------------------------------------|:--------------------------------------|
+| `l`            | `core:move-right`                   | Expand matches                        |
+| `h`            | `core:move-right`                   | Collapse matches                      |
+| `j`            | `project-find-navigation:show-next` | Visit next match                      |
+| `k`            | `project-find-navigation:show-prev` | Visit previous match                  |
+| `o` or `enter` | `core:confirm`                      | Open editor where current match found |
+| `q`            | `core:close`                        | Close result pane                     |
+
+### For keymap in text-editor
+
+You have to set in your `keymap.cson`.
 
 e.g.
 
-My setting, navigate results-pane with Vim like keymap.
-
 ```coffeescript
-'.preview-pane.project-find-navigation':
-  'l': 'core:move-right'
-  'h': 'core:move-left'
-  'j': 'project-find-navigation:select-next-and-confirm'
-  'k': 'project-find-navigation:select-prev-and-confirm'
-  'enter': 'project-find-navigation:confirm'
-
 'atom-workspace:not([mini])':
   # This key override window:toggle-full-screen(I'm not using it).
   'ctrl-cmd-f': 'project-find-navigation:activate-results-pane'

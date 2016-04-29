@@ -76,14 +76,13 @@ module.exports =
 
     @resultPaneView.addClass('project-find-navigation')
 
-    commands =
-      'confirm': => @confirm('here', split: false, focusResultsPane: false)
-      'confirm-and-continue': => @confirm('here', split: false, focusResultsPane: true)
-      'select-next-and-confirm': => @confirm('next', split: true,  focusResultsPane: true)
-      'select-prev-and-confirm': => @confirm('prev', split: true,  focusResultsPane: true)
-    commandPrefix = "project-find-navigation"
-    commands = _.mapObject(commands, (name, fn) -> ["#{commandPrefix}:#{name}", fn])
-
+    pfx = "project-find-navigation"
+    commands = {}
+    commands["core:confirm"] = => @confirm('here', split: false, focusResultsPane: false)
+    commands["#{pfx}:confirm"] = => @confirm('here', split: false, focusResultsPane: false)
+    commands["#{pfx}:confirm-and-continue"] = => @confirm('here', split: false, focusResultsPane: true)
+    commands["#{pfx}:show-next"] = => @confirm('next', split: true,  focusResultsPane: true)
+    commands["#{pfx}:show-prev"] = => @confirm('prev', split: true,  focusResultsPane: true)
     subscribe atom.commands.add(@resultPaneView.element, commands)
 
   confirm: (where, {focusResultsPane, split}={}) ->

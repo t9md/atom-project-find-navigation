@@ -1,3 +1,9 @@
+## 0.2.0
+- Breaking: Remove mouse single click monkey patching for maintainability.
+- Breaking: Provides default keymap for resultPane.
+- Breaking: Rename `select-prev-and-confirm` to `show-prev`
+- Breaking: Rename `select-next-and-confirm` to `show-prev`
+
 ## 0.1.1
 - Fix typo for config param `flashDuration` by @Globegitter.
 
