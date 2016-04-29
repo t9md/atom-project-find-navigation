@@ -24,7 +24,6 @@ Here is summary table of what project-find-navigation provides.
 
 | available on |  command       | pure project-find  | project-find-navigation  |
 | ------------ | ------------- |-------------| -----|
-| results-pane | mousedown   | Jump to found entry and select | Scroll to found entry with flashing effect, focus remains on result pane |
 | results-pane | confirm   | Jump to found entry and select | Jump to found entry with flashing effect, no select |
 | results-pane | confirm-and-continue | N/A | Scroll to found entry with flashing effect, focus remains on result pane |
 | results-pane | select-next-and-confirm | N/A | Select next item and then confirm-and-continue(auto preview) |

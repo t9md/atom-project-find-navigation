@@ -1,7 +1,6 @@
 {CompositeDisposable, Range} = require 'atom'
 
 _ = require 'underscore-plus'
-{$} = require 'atom-space-pen-views'
 {
   isTextEditor, decorateRange, getVisibleEditors
   getAdjacentPaneForPane, activatePaneItem
@@ -76,22 +75,6 @@ module.exports =
       @refreshVisibleEditors() if isTextEditor(item)
 
     @resultPaneView.addClass('project-find-navigation')
-
-    mouseHandler = ({target, which, ctrlKey}) =>
-      @resultsView.find('.selected').removeClass('selected')
-      view = $(target).view()
-      view.addClass('selected')
-
-      if (which is 1) and not ctrlKey
-        if view.hasClass('list-nested-item')
-          # Collapse or expand tree
-          view.confirm()
-        else
-          @confirm('here', focusResultsPane: true, split: true)
-      @resultsView.renderResults()
-
-    @resultsView.off('mousedown')
-    @resultsView.on('mousedown', '.match-result, .path', mouseHandler)
 
     commands =
       'confirm': => @confirm('here', split: false, focusResultsPane: false)
