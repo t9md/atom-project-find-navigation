@@ -125,8 +125,6 @@ module.exports =
         @activateResultsPaneItem()
       else
         editor.setCursorBufferPosition(range.start)
-
-      @refreshVisibleEditors()
       decorateRange editor, range,
         class: 'project-find-navigation-flash'
         timeout: atom.config.get('project-find-navigation.flashDuration')
@@ -135,10 +133,12 @@ module.exports =
     matches = @model.getResult(editor.getPath())?.matches
     return unless matches
 
+    decorateOptions =
+      invalidate: 'inside'
+      class: 'project-find-navigation-match'
+
     decorate = (editor, range) ->
-      decorateRange editor, range,
-        invalidate: 'inside'
-        class: 'project-find-navigation-match'
+      decorateRange(editor, range, decorateOptions)
 
     ranges = _.pluck(matches, 'range')
     markers = (decorate(editor, range) for range in ranges)
