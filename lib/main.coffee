@@ -46,7 +46,7 @@ module.exports =
 
   deactivate: ->
     @reset()
-    @subscriptions.dispose()
+    @subscriptions?.dispose()
     {@subscriptions, @markersByEditor} = {}
 
   reset: ->
