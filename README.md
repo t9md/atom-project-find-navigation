@@ -48,7 +48,7 @@ But you still **need to set keymap for workspace**.
 | keystroke      | command                             | action                                |
 |:---------------|:------------------------------------|:--------------------------------------|
 | `l`            | `core:move-right`                   | Expand matches                        |
-| `h`            | `core:move-right`                   | Collapse matches                      |
+| `h`            | `core:move-left`                    | Collapse matches                      |
 | `j`            | `project-find-navigation:show-next` | Visit next match                      |
 | `k`            | `project-find-navigation:show-prev` | Visit previous match                  |
 | `o` or `enter` | `core:confirm`                      | Open editor where current match found |
