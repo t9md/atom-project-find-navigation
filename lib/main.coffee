@@ -91,6 +91,9 @@ module.exports =
       when 'next' then @resultsView.selectNextResult()
       when 'prev' then @resultsView.selectPreviousResult()
 
+    # Don't show preview when find-and-replace in full screen mode
+    return unless atom.config.get('find-and-replace.openProjectFindResultsInRightPane')
+
     view = @resultsView.find('.selected').view()
     range = view?.match?.range
     return unless range
