@@ -1,3 +1,8 @@
+## 0.3.0
+- New: navigation keymap `g g`, `G`, `ctrl-f`, `ctrl-b`.
+- Fix: Remove use of`::shadow`.
+- New: Borrowed flash animation from atom.core to better UI effects.
+
 ## 0.2.1
 - Fix : Deprecation call `Function.extractParams is deprecated` #9
 
