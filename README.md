@@ -47,12 +47,16 @@ But you still **need to set keymap for workspace**.
 
 | keystroke      | command                             | action                                |
 |:---------------|:------------------------------------|:--------------------------------------|
-| `l`            | `core:move-right`                   | Expand matches                        |
-| `h`            | `core:move-left`                    | Collapse matches                      |
 | `j`            | `project-find-navigation:show-next` | Visit next match                      |
 | `k`            | `project-find-navigation:show-prev` | Visit previous match                  |
+| `l`            | `core:move-right`                   | Expand matches                        |
+| `h`            | `core:move-left`                    | Collapse matches                      |
 | `o` or `enter` | `core:confirm`                      | Open editor where current match found |
 | `q`            | `core:close`                        | Close result pane                     |
+| `g g`          | `core:move-to-top`                  | Move to top of result pane            |
+| `G`            | `core:move-to-bottom`               | Move to bottom of result pane         |
+| `ctrl-f`       | `core:page-down`                    | Scroll down                           |
+| `ctrl-b`       | `core:page-up`                      | Scroll up                             |
 
 ### For keymap in text-editor
 
