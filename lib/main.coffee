@@ -118,10 +118,7 @@ module.exports =
     matches = @model.getResult(editor.getPath())?.matches
     return unless matches
 
-    decorateOptions =
-      invalidate: 'inside'
-      class: 'project-find-navigation-match'
-
+    decorateOptions = {invalidate: 'inside', class: 'project-find-navigation-match'}
     decorate = (editor, range) ->
       decorateRange(editor, range, decorateOptions)
 

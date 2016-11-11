@@ -31,12 +31,11 @@ activatePaneItem = (item) ->
 flashDisposable = null
 decorateRange = (editor, range, options) ->
   flashDisposable?.dispose()
-  marker = editor.markBufferRange range,
-    invalidate: options.invalidate ? 'never'
-    persistent: options.persistent ? false
+  invalidate = options.invalidate ? 'never'
+  marker = editor.markBufferRange(range, {invalidate})
 
   editor.decorateMarker marker,
-    type:  'highlight'
+    type: 'highlight'
     class: options.class
 
   if options.timeout?
