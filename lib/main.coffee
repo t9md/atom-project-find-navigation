@@ -1,4 +1,5 @@
 {CompositeDisposable, Range} = require 'atom'
+{$, ScrollView} = require 'atom-space-pen-views'
 
 _ = require 'underscore-plus'
 {
@@ -16,6 +17,45 @@ Config =
   flashDuration:
     type: 'integer'
     default: 500
+
+PFNutilsForResultsView =
+  __PFN__getSelectedView: ->
+    @find('.selected').view()
+
+  __PFN__getNext: (element) ->
+    return unless element?.length
+    visibleItems = @find('li')
+    itemIndex = visibleItems.index(element)
+    $(visibleItems[Math.min(itemIndex + 1, visibleItems.length - 1)])
+
+  __PFN__getPevious: (element) ->
+    return unless element?.length
+    visibleItems = @find('li')
+    itemIndex = visibleItems.index(element)
+    $(visibleItems[Math.max(itemIndex - 1, 0)])
+
+  __PFN__selectResult: (where, {visibleOnly}={}) ->
+    visibleOnly ?= true
+    selectedView = @find('.selected').view()
+    return @selectFirstResult() unless selectedView
+
+    switch where
+      when 'next'# then @resultsView.selectNextResult()
+        if visibleOnly
+          nextView = @getNextVisible(selectedView)
+        else
+          nextView = @__PFN__getNext(selectedView)
+        @selectResult(nextView)
+        @scrollTo(nextView)
+
+      when 'prev'# then @resultsView.selectPreviousResult()
+        if visibleOnly
+          prevView = @getPreviousVisible(selectedView)
+        else
+          prevView = @__PFN__getPevious(selectedView)
+        @selectResult(prevView)
+        @scrollTo(prevView)
+
 
 module.exports =
   config: Config
@@ -59,6 +99,7 @@ module.exports =
 
   improve: (resultPaneView) ->
     {@model, @resultsView} = resultPaneView
+    _.extend(@resultsView, PFNutilsForResultsView)
 
     # [FIXME]
     # This dispose() shuldn't be necessary but sometimes onDidFinishSearching
@@ -85,18 +126,23 @@ module.exports =
 
   confirm: (where, {focusResultsPane, split}={}) ->
     return unless @resultsView?
-    switch where
-      when 'next' then @resultsView.selectNextResult()
-      when 'prev' then @resultsView.selectPreviousResult()
+    @resultsView.__PFN__selectResult(where, visibleOnly: focusResultsPane)
 
+    # selectedView = @resultView.find('.selected').view()
     # Don't show preview when find-and-replace in full screen mode
     return unless atom.config.get('find-and-replace.openProjectFindResultsInRightPane')
 
-    view = @resultsView.find('.selected').view()
+    view = @resultsView.__PFN__getSelectedView()
+    # if view.pathDetails?
+    #   @selectResult(where)
+    #   view = @resultsView.find('.selected').view()
+
+    console.log view
     range = view?.match?.range
     return unless range
-    range = Range.fromObject(range)
+    # console.log [view.match, view.match.lineText, view.match.range.toString(), view.filePath]
 
+    range = Range.fromObject(range)
     if pane = getAdjacentPaneForPane(atom.workspace.paneForItem(@resultPaneView))
       pane.activate()
     else
