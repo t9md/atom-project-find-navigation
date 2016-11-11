@@ -11,8 +11,6 @@ getVisibleEditors = ->
 getAdjacentPaneForPane = (pane) ->
   return unless children = pane.getParent().getChildren?()
   index = children.indexOf(pane)
-  options = {split: 'left', activatePane: false}
-
   _.chain([children[index-1], children[index+1]])
     .filter (pane) ->
       pane?.constructor?.name is 'Pane'
@@ -34,9 +32,8 @@ decorateRange = (editor, range, options) ->
   invalidate = options.invalidate ? 'never'
   marker = editor.markBufferRange(range, {invalidate})
 
-  editor.decorateMarker marker,
-    type: 'highlight'
-    class: options.class
+  decorateOptions = {type: 'highlight', class: options.class}
+  editor.decorateMarker(marker, decorateOptions)
 
   if options.timeout?
     timeoutID = setTimeout ->
@@ -59,6 +56,10 @@ smartScrollToBufferPosition = (editor, point) ->
   center = (onePageDown < target) or (target < onePageUp)
   editor.scrollToBufferPosition(point, {center})
 
+findPanelByConstructorName = (name) ->
+  for panel in atom.workspace.getBottomPanels() when panel.getItem().constructor.name is name
+    return panel
+
 module.exports = {
   isTextEditor
   getVisibleEditors
@@ -66,4 +67,5 @@ module.exports = {
   activatePaneItem
   decorateRange
   smartScrollToBufferPosition
+  findPanelByConstructorName
 }

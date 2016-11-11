@@ -5,6 +5,7 @@ _ = require 'underscore-plus'
   isTextEditor, decorateRange, getVisibleEditors
   getAdjacentPaneForPane, activatePaneItem
   smartScrollToBufferPosition
+  findPanelByConstructorName
 } = require './utils'
 
 Config =
@@ -14,7 +15,7 @@ Config =
     description: "Hide Project Find Panel on results pane shown"
   flashDuration:
     type: 'integer'
-    default: 300
+    default: 500
 
 module.exports =
   config: Config
@@ -33,13 +34,12 @@ module.exports =
       @disimprove() if (item is @resultPaneView)
 
     @subscribe atom.workspace.onDidOpen ({uri, item}) =>
-      if (not @resultPaneView?) and (uri is @URI)
+      if uri is @URI and not @resultPaneView?
+        @resultPaneView = item
         @improve(item)
 
         if atom.config.get('project-find-navigation.hideProjectFindPanel')
-          panel = _.detect atom.workspace.getBottomPanels(), (panel) ->
-            panel.getItem().constructor.name is 'ProjectFindView'
-          panel?.hide()
+          findPanelByConstructorName('ProjectFindView')?.hide()
 
   subscribe: (subscription) ->
     @subscriptions.add(subscription)
@@ -57,8 +57,8 @@ module.exports =
     @clearAllDecorations()
     @reset()
 
-  improve: (@resultPaneView) ->
-    {@model, @resultsView} = @resultPaneView
+  improve: (resultPaneView) ->
+    {@model, @resultsView} = resultPaneView
 
     # [FIXME]
     # This dispose() shuldn't be necessary but sometimes onDidFinishSearching
@@ -74,16 +74,14 @@ module.exports =
     subscribe atom.workspace.onDidChangeActivePaneItem (item) =>
       @refreshVisibleEditors() if isTextEditor(item)
 
-    @resultPaneView.addClass('project-find-navigation')
+    resultPaneView.addClass('project-find-navigation')
 
-    pfx = "project-find-navigation"
-    commands = {}
-    commands["core:confirm"] = => @confirm('here', split: false, focusResultsPane: false)
-    commands["#{pfx}:confirm"] = => @confirm('here', split: false, focusResultsPane: false)
-    commands["#{pfx}:confirm-and-continue"] = => @confirm('here', split: false, focusResultsPane: true)
-    commands["#{pfx}:show-next"] = => @confirm('next', split: true,  focusResultsPane: true)
-    commands["#{pfx}:show-prev"] = => @confirm('prev', split: true,  focusResultsPane: true)
-    subscribe atom.commands.add(@resultPaneView.element, commands)
+    subscribe atom.commands.add resultPaneView.element,
+      "core:confirm": => @confirm('here', split: false, focusResultsPane: false)
+      "project-find-navigation:confirm": => @confirm('here', split: false, focusResultsPane: false)
+      "project-find-navigation:confirm-and-continue": => @confirm('here', split: false, focusResultsPane: true)
+      "project-find-navigation:show-next": => @confirm('next', split: true,  focusResultsPane: true)
+      "project-find-navigation:show-prev": => @confirm('prev', split: true,  focusResultsPane: true)
 
   confirm: (where, {focusResultsPane, split}={}) ->
     return unless @resultsView?
@@ -104,12 +102,13 @@ module.exports =
     else
       atom.workspace.getActivePane().splitRight() if split
 
-    atom.workspace.open(view.filePath).then (editor) =>
+    atom.workspace.open(view.filePath, pending: true).then (editor) =>
       if focusResultsPane
         smartScrollToBufferPosition(editor, range.start)
         @activateResultsPaneItem()
       else
         editor.setCursorBufferPosition(range.start)
+
       decorateRange editor, range,
         class: 'project-find-navigation-flash'
         timeout: atom.config.get('project-find-navigation.flashDuration')
