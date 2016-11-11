@@ -1,3 +1,6 @@
+## 0.2.1
+- Fix : Deprecation call `Function.extractParams is deprecated` #9
+
 ## 0.2.0
 - Breaking: Remove mouse single click monkey patching for maintainability.
 - Breaking: Provides default keymap for resultPane.
