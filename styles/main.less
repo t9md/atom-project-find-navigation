@@ -1,19 +1,22 @@
 @import "ui-variables";
 @import "syntax-variables";
+
 .project-find-navigation {
   &.round-box {
     box-sizing: border-box;
     border-radius: @component-border-radius;
   }
 }
-atom-text-editor::shadow {
+
+atom-text-editor {
   .project-find-navigation-match .region {
     .project-find-navigation.round-box;
     background-color: transparent;
-    border: 1px solid @syntax-result-marker-color;
+    border: 1px solid @syntax-text-color;
   }
   .project-find-navigation-flash .region {
-    .project-find-navigation.round-box;
-    background-color: @syntax-selection-flash-color;
+    animation-name: flash;
+    animation-duration: .5s;
+    animation-iteration-count: 1;
   }
 }
