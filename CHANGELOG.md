@@ -1,3 +1,6 @@
+## 0.4.0 Deprecated
+- Add `[Deprecated]` on package description and README.
+
 ## 0.3.0
 - New: navigation keymap `g g`, `G`, `ctrl-f`, `ctrl-b`.
 - Fix: Remove use of`::shadow`.

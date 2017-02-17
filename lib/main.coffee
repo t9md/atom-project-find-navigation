@@ -8,6 +8,18 @@ _ = require 'underscore-plus'
   findPanelByConstructorName
 } = require './utils'
 
+showDeprecationWarningOnce = (pkgName) ->
+  param = "#{pkgName}.showDeprecationWarning"
+  if atom.config.get(param)
+    atom.config.set(param, false)
+    message = """
+    ## Deprecated: `#{pkgName}`
+    - Because I no longer use this package.
+    - Sorry and thank you for using my package.
+    - This warning is not displayed on next activation.
+    """.replace(/_/g, ' ')
+    atom.notifications.addWarning(message, dismissable: true)
+
 Config =
   hideProjectFindPanel:
     type: 'boolean'
@@ -16,12 +28,17 @@ Config =
   flashDuration:
     type: 'integer'
     default: 500
+  showDeprecationWarning:
+    type: 'boolean'
+    default: true
 
 module.exports =
   config: Config
   URI: 'atom://find-and-replace/project-results'
 
   activate: ->
+    showDeprecationWarningOnce('project-find-navigation')
+
     @markersByEditor = new Map
 
     @subscriptions = new CompositeDisposable
@@ -50,7 +67,7 @@ module.exports =
     {@subscriptions, @markersByEditor} = {}
 
   reset: ->
-    @improveSubscriptions.dispose()
+    @improveSubscriptions?.dispose()
     {@improveSubscriptions, @resultPaneView, @model, @resultsView} = {}
 
   disimprove: ->

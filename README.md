@@ -1,3 +1,8 @@
+# :warning: [Deprecated] Don't use.
+
+- Why? Because I no longer use this package in daily editing.
+- It's difficult to have motivation to maintain package I don't use.
+
 # project-find-navigation
 
 ![gif](https://raw.githubusercontent.com/t9md/t9md/55e7fd32500d45751e2d7824f008e42b06763cd1/img/atom-project-find-navigation.gif)
