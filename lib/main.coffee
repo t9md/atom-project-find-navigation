@@ -9,15 +9,17 @@ _ = require 'underscore-plus'
 } = require './utils'
 
 showDeprecationWarningOnce = (pkgName) ->
-  param = "#{pkgName}.showDeprecationWarning"
+  param = "#{pkgName}.showEndOfLifeWarning"
   if atom.config.get(param)
     atom.config.set(param, false)
     message = """
-    ## Deprecated: `#{pkgName}`
-    - Because I no longer use this package.
-    - Sorry and thank you for using my package.
-    - This warning is not displayed on next activation.
-    """.replace(/_/g, ' ')
+      ## End Of Life: `#{pkgName}`
+      - This package would become unavailable from Atom-v1.16.0 and above.
+      - Will be removed soon.
+      - Because I no longer use this package.
+      - Sorry and thank you for using my package.
+      - This warning is not displayed on next activation.
+      """
     atom.notifications.addWarning(message, dismissable: true)
 
 Config =
@@ -29,6 +31,9 @@ Config =
     type: 'integer'
     default: 500
   showDeprecationWarning:
+    type: 'boolean'
+    default: true
+  showEndOfLifeWarning:
     type: 'boolean'
     default: true
 

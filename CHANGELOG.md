@@ -1,3 +1,7 @@
+## 0.5.0: End of Life, final release
+- EOL: Deprecation warning again.
+- Breaking: Limit engine to "<1.16.0", since this package no longer work in v1.16.
+
 ## 0.4.0 Deprecated
 - Add `[Deprecated]` on package description and README.
 
