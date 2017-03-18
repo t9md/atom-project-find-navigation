@@ -1,6 +1,6 @@
 # :warning: [Deprecated] Don't use.
 
-- Why? Because I no longer use this package in daily editing.
+- Why? Because I no longer use this package in daily editing.  I use [narrow](https://atom.io/packages/narrow) instead.
 - It's difficult to have motivation to maintain package I don't use.
 
 # project-find-navigation
