@@ -1,3 +1,6 @@
+## 0.5.1: Doc only release
+- Doc: Mention whey I deprecated this package in README.md( because of narrow )
+
 ## 0.5.0: End of Life, final release
 - EOL: Deprecation warning again.
 - Breaking: Limit engine to "<1.16.0", since this package no longer work in v1.16.
